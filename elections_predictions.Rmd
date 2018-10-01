@@ -1,0 +1,64 @@
+---
+title: "elections_predictions"
+output: html_document
+
+---
+
+```{r}
+library(tidyverse)
+
+#leaps
+```
+
+```{r}
+eleicoes_data <- readr::read_csv(
+  'eleicoes_2006_e_2010.csv', 
+  local=readr::locale("br"),
+  col_types = cols(
+    ano = col_integer(),
+    sequencial_candidato = col_character(),
+    quantidade_doacoes = col_integer(),
+    quantidade_doadores = col_integer(),
+    total_receita = col_double(),
+    media_receita = col_double(),
+    recursos_de_outros_candidatos.comites = col_double(),
+    recursos_de_pessoas_fisicas = col_double(),
+    recursos_de_pessoas_juridicas = col_double(),
+    recursos_proprios = col_double(),
+    `recursos_de_partido_politico` = col_double(),
+    quantidade_despesas = col_integer(),
+    quantidade_fornecedores = col_integer(),
+    total_despesa = col_double(),
+    media_despesa = col_double(),
+    votos = col_integer(),
+    .default = col_character()))
+
+eleicoes_data$uf <- as.factor(eleicoes_data$uf)
+
+# R² e R² ajustado e RSME
+
+
+
+#model <- lm(votos ~ ., eleicoes_data)
+summary(lm)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
