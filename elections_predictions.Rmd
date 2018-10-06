@@ -6,7 +6,6 @@ output: html_document
 
 ```{r}
 library(tidyverse)
-
 #leaps
 ```
 
@@ -32,33 +31,40 @@ eleicoes_data <- readr::read_csv(
     media_despesa = col_double(),
     votos = col_integer(),
     .default = col_character()))
-
-eleicoes_data$uf <- as.factor(eleicoes_data$uf)
-
-# R² e R² ajustado e RSME
-
-
-
-#model <- lm(votos ~ ., eleicoes_data)
-summary(lm)
 ```
 
-## R Markdown
+Questão 1) Um modelo de regressão múltipla com todas as variáveis é plausível para explicar a variação em y (número de votos) em 2006? Mesma pergunta para 2010. 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Para responder essa questão, transformaremos as variáveis categóricas (não numéricas) em fatores e veremos como se comporta o modelo, com essas variáveis, para explicar a variação dos votos.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
 
-```{r cars}
-summary(cars)
+  eleicoes_data$uf <- as.factor(eleicoes_data$uf)
+  #eleicoes_data$partido <- as.factor(eleicoes_data$partido)
+  #eleicoes_data$sexo <- as.factor(eleicoes_data$sexo)
+  eleicoes_data$cargo <- as.factor(eleicoes_data$cargo)
+  eleicoes_data$estado_civil <- as.factor(eleicoes_data$estado_civil)
+  eleicoes_data$ocupacao <- as.factor(eleicoes_data$ocupacao)
+  
+  # R² e R² ajustado e RSME
+  
+  voto.model <- lm(formula = votos ~ . , eleicoes_data %>% select(-cargo), na.action = na.omit)
+  summary(voto.model)
 ```
 
-## Including Plots
+Tentando rodar o modelo, pode-se observar que utilizar todas as variáveis categóricas é ruim por, pelo menos, 3 motivos:
 
-You can also embed plots, for example:
+  1) Limitação computacional do computador - rodar todas as variáveis dos dados demanada uma grande quantidade de memória que não pôde ser suportado por computadores (como o meu pessoal) que possuem memória razoável. A seguinte mensagem de erro foi lançada: "Erro: não é possível alocar vetor de tamanho 364.0 Mb".
+  
+  2) Modelo não roda com variáveis que possuem apenas um nível - as variáveis cargo e ano, por serem de apenas um nível, não puderam ser inseridas no modelo para explicar a variação da quantidade de votos, pois são variável que não possuem variância alguma, visto que seus valores são contantes.
+  
+  3) R² e R ajustado - valores diferentes indicando que a escolha das variáveis do modelo não foram boas.
+  
+```{r}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
 ```
+  
+  
+  
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
