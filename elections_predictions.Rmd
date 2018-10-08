@@ -75,6 +75,10 @@ Tentando rodar o modelo, pode-se observar que utilizar todas as variáveis não 
   3) R² e R ajustado - valores muito diferentes indicando que a escolha das variáveis do modelo não foram boas.
   
 Questão 2) Compare as regressões construídas para 2006 e 2010. Quais as diferenças/semelhanças percebidas?
+
+  Construindo o modelo, o total de despesa e o total de receita indicam o nível de gasto de campanha de cada candidato são variáveis que parecem serem boas para explicar a variação de votos, visto que,      historicamente, campanhas mais caras redundam em campanhas vencedoras. Vamos observar os modelos, para 2006 e 2010.
+  
+  Observando primeiro o modelo para 2006:
   
 ```{r}
 
@@ -83,13 +87,35 @@ Questão 2) Compare as regressões construídas para 2006 e 2010. Quais as difer
     
     ggplot(voto.model2006, aes(x = predict(voto.model2006), y = residuals(voto.model2006))) + geom_point()
     
-    voto.model2010 <- lm(formula = votos ~ data2010$total_despesa + data2010$total_receita , data2010 %>% select(-cargo), na.action = na.omit)
-    summary(voto.model2010)
-  
-    
 
-  ```
+```
   
+  Analisando o plot dos resíduos vemos que os resíduos se encontram aglomerados, próximos de zero, com exceção de alguns poucos, mostrando que há pouca diferença entre o modelo original da variação dos votos e o modelo da variação dos votos sendo explicados por nossas variáveis. 
   
+  Além disso, observando o R² e o R ajustado vemos que não há diferença entre os valores dos mesmos (0.436 e 0,4357, respectivamente), indicando que as variáveis escolhidas explicam bem a variação dos votos. Vemos também que o valor do RSE não é um valor alto.
+
+  Analisando agora para variáveis menos explicativas (sexo, grau, estado, sequencial do candidato, estado civil), observados no plot de resíduos que os mesmos se encontram com razoável distância a zero e com certo espalhamento, indicando razoável grau de erro. O valor do RSE se apresenta alto e os valores de R² e R ajustado com uma considerável diferença (0.075 e 0.064, respectivamente), indicando que as variáveis do modelo explicam mal os votos.
   
+```{r}
+
+  voto.model2006Ruim <- lm(formula = votos ~ data2006$sexo + data2006$grau + data2006$uf + data2006$sequencial_candidato + data2006$estado_civil, data2006 %>% select(-cargo), na.action = na.omit)
+    summary(voto.model2006Ruim)
+    
+    ggplot(voto.model2006Ruim, aes(x = predict(voto.model2006Ruim), y = residuals(voto.model2006Ruim))) + geom_point()
+    
+```
+  
+```{r}
+
+  voto.model2010 <- lm(formula = votos ~ data2010$total_despesa + data2010$total_receita , data2010 %>% select(-cargo), na.action = na.omit)
+    summary(voto.model2010)
+    
+    ggplot(voto.model2010, aes(x = predict(voto.model2010), y = residuals(voto.model2010))) + geom_point()
+
+```
+
+
+
+
+
 
