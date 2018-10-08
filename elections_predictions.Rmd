@@ -132,6 +132,12 @@ Questão 2) Compare as regressões construídas para 2006 e 2010. Quais as difer
 
 ```
 
+Questão 3) Todas as variáveis são úteis para os modelos de regressão? Há variáveis redudantes?
+
+Nem todas as variáveis são úteis para os modelos de regressão. Existem variáveis de apenas um nível, ou seja, variáveis que não apresentam variações no seu conteúdo. Como exemplo dessas temos o ano e cargo. Há também variáveis que existem em função de outras, onde também podemos chamá-las de redundantes. Como exemplo dessas, temos a média das receitas e média das despesas, que existem por conta das variáveis total de receitas e total de despesas, respectivamente.
+
+Questão 4) No caso de haver variáveis pouco explicativas e/ou redudantes, construa um novo modelo sem essas variáveis e o compare ao modelo com todas as variáveis (e.g. em termos de R2 e RSE). Faça isso para 2006 e 2010 separadamente. 
+
 
 
 
