@@ -105,6 +105,9 @@ Questão 2) Compare as regressões construídas para 2006 e 2010. Quais as difer
     
 ```
   
+  
+  Observando o modelo para 2010:
+  
 ```{r}
 
   voto.model2010 <- lm(formula = votos ~ data2010$total_despesa + data2010$total_receita , data2010 %>% select(-cargo), na.action = na.omit)
@@ -113,7 +116,21 @@ Questão 2) Compare as regressões construídas para 2006 e 2010. Quais as difer
     ggplot(voto.model2010, aes(x = predict(voto.model2010), y = residuals(voto.model2010))) + geom_point()
 
 ```
+  
+  Assim como para os dados de 2006, analisando o plot dos resíduos vemos que os resíduos se encontram aglomerados, próximos de zero, com exceção de alguns poucos, mostrando que há pouca diferença entre o modelo original da variação dos votos e o modelo da variação dos votos sendo explicados por nossas variáveis. Assim, vemos que nosso modelo explica bem os votos.
+  
+  Além disso, observando o R² e o R ajustado vemos que não há diferença entre os valores dos mesmos (0.4059 e 0,4056, respectivamente), indicando também que as variáveis escolhidas explicam bem a variação dos votos. Vemos também que o valor do RSE não é um valor alto.
+  
+  A semelhança de como fizemos para os dados de 2006, para 2010, analisando o modelo agora para variáveis menos explicativas (sexo, grau, estado, sequencial do candidato, estado civil), observa-se no plot de resíduos que os mesmos se encontram com razoável distância a zero e com certo espalhamento, indicando razoável grau de erro. O valor do RSE se apresenta alto e os valores de R² e R ajustado com uma considerável diferença (0.0701 e 0.061, respectivamente), indicando que as variáveis do modelo explicam mal os votos.
+  
+```{r}
 
+  voto.model2010Ruim <- lm(formula = votos ~ data2010$sexo + data2010$grau + data2010$uf + data2010$sequencial_candidato + data2010$estado_civil, data2010 %>% select(-cargo), na.action = na.omit)
+    summary(voto.model2010Ruim)
+    
+    ggplot(voto.model2010Ruim, aes(x = predict(voto.model2010Ruim), y = residuals(voto.model2010Ruim))) + geom_point()
+
+```
 
 
 
