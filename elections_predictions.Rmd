@@ -31,6 +31,9 @@ eleicoes_data <- readr::read_csv(
     media_despesa = col_double(),
     votos = col_integer(),
     .default = col_character()))
+
+data2006 <- read.csv("eleicoes_2006.csv")
+data2010 <- read.csv("eleicoes_2010.csv")
 ```
 
 Questão 1) Um modelo de regressão múltipla com todas as variáveis é plausível para explicar a variação em y (número de votos) em 2006? Mesma pergunta para 2010. 
@@ -39,31 +42,53 @@ Para responder essa questão, transformaremos as variáveis categóricas (não n
 
 ```{r}
 
-  eleicoes_data$uf <- as.factor(eleicoes_data$uf)
-  #eleicoes_data$partido <- as.factor(eleicoes_data$partido)
-  #eleicoes_data$sexo <- as.factor(eleicoes_data$sexo)
-  eleicoes_data$cargo <- as.factor(eleicoes_data$cargo)
-  eleicoes_data$estado_civil <- as.factor(eleicoes_data$estado_civil)
-  eleicoes_data$ocupacao <- as.factor(eleicoes_data$ocupacao)
+  data2006$uf <- as.factor(data2006$uf)
+  data2006$partido <- as.factor(data2006$partido)
+  data2006$sexo <- as.factor(data2006$sexo)
+  data2006$cargo <- as.factor(data2006$cargo)
+  data2006$estado_civil <- as.factor(data2006$estado_civil)
+  data2006$ocupacao <- as.factor(data2006$ocupacao)
+  
+  data2010$uf <- as.factor(data2010$uf)
+  data2010$partido <- as.factor(data2010$partido)
+  data2010$sexo <- as.factor(data2010$sexo)
+  data2010$cargo <- as.factor(data2010$cargo)
+  data2010$estado_civil <- as.factor(data2010$estado_civil)
+  data2010$ocupacao <- as.factor(data2010$ocupacao)
   
   # R² e R² ajustado e RSME
   
-  voto.model <- lm(formula = votos ~ . , eleicoes_data %>% select(-cargo), na.action = na.omit)
-  summary(voto.model)
+  voto.model2006 <- lm(formula = votos ~ data2006$quantidade_doacoes + data2006$uf + data2006$partido + data2006$sexo + data2006$estado_civil + data2006$ocupacao + data2006$quantidade_doadores + data2006$total_receita + data2006$media_receita + data2006$recursos_de_outros_candidatos.comites + data2006$recursos_de_pessoas_fisicas + data2006$recursos_de_pessoas_juridicas + data2006$recursos_proprios + data2006$recursos_de_partido_politico + data2006$quantidade_despesas + data2006$quantidade_fornecedores + data2006$total_despesa + data2006$total_despesa + data2006$media_despesa + data2006$grau, data2006 %>% select(-cargo), na.action = na.omit)
+  
+  voto.model2010 <- lm(formula = votos ~ data2010$quantidade_doacoes , data2010 %>% select(-cargo), na.action = na.omit)
+
+  summary(voto.model2006)
+  summary(voto.model2010)
 ```
 
-Tentando rodar o modelo, pode-se observar que utilizar todas as variáveis categóricas é ruim por, pelo menos, 3 motivos:
+Tentando rodar o modelo, pode-se observar que utilizar todas as variáveis não é plausível por, pelo menos, 3 motivos:
 
   1) Limitação computacional do computador - rodar todas as variáveis dos dados demanada uma grande quantidade de memória que não pôde ser suportado por computadores (como o meu pessoal) que possuem memória razoável. A seguinte mensagem de erro foi lançada: "Erro: não é possível alocar vetor de tamanho 364.0 Mb".
   
   2) Modelo não roda com variáveis que possuem apenas um nível - as variáveis cargo e ano, por serem de apenas um nível, não puderam ser inseridas no modelo para explicar a variação da quantidade de votos, pois são variável que não possuem variância alguma, visto que seus valores são contantes.
   
-  3) R² e R ajustado - valores diferentes indicando que a escolha das variáveis do modelo não foram boas.
+  3) R² e R ajustado - valores muito diferentes indicando que a escolha das variáveis do modelo não foram boas.
+  
+Questão 2) Compare as regressões construídas para 2006 e 2010. Quais as diferenças/semelhanças percebidas?
   
 ```{r}
 
+    voto.model2006 <- lm(formula = votos ~ data2006$total_despesa + data2006$total_receita, data2006 %>% select(-cargo), na.action = na.omit)
+    summary(voto.model2006)
+    
+    ggplot(voto.model2006, aes(x = predict(voto.model2006), y = residuals(voto.model2006))) + geom_point()
+    
+    voto.model2010 <- lm(formula = votos ~ data2010$total_despesa + data2010$total_receita , data2010 %>% select(-cargo), na.action = na.omit)
+    summary(voto.model2010)
+  
+    
 
-```
+  ```
   
   
   
