@@ -36,7 +36,7 @@ data2006 <- read.csv("eleicoes_2006.csv")
 data2010 <- read.csv("eleicoes_2010.csv")
 ```
 
-Questão 1) Um modelo de regressão múltipla com todas as variáveis é plausível para explicar a variação em y (número de votos) em 2006? Mesma pergunta para 2010. 
+QUESTÃO 1) Um modelo de regressão múltipla com todas as variáveis é plausível para explicar a variação em y (número de votos) em 2006? Mesma pergunta para 2010. 
 
 Para responder essa questão, transformaremos as variáveis categóricas (não numéricas) em fatores e veremos como se comporta o modelo, com essas variáveis, para explicar a variação dos votos.
 
@@ -58,9 +58,9 @@ Para responder essa questão, transformaremos as variáveis categóricas (não n
   
   # R² e R² ajustado e RSME
   
-  voto.model2006 <- lm(formula = votos ~ data2006$quantidade_doacoes + data2006$uf + data2006$partido + data2006$sexo + data2006$estado_civil + data2006$ocupacao + data2006$quantidade_doadores + data2006$total_receita + data2006$media_receita + data2006$recursos_de_outros_candidatos.comites + data2006$recursos_de_pessoas_fisicas + data2006$recursos_de_pessoas_juridicas + data2006$recursos_proprios + data2006$recursos_de_partido_politico + data2006$quantidade_despesas + data2006$quantidade_fornecedores + data2006$total_despesa + data2006$total_despesa + data2006$media_despesa + data2006$grau, data2006 %>% select(-cargo), na.action = na.omit)
+  voto.model2006 <- lm(formula = votos ~ . , data2006 %>% select(-cargo), na.action = na.omit)
   
-  voto.model2010 <- lm(formula = votos ~ data2010$quantidade_doacoes , data2010 %>% select(-cargo), na.action = na.omit)
+  voto.model2010 <- lm(formula = votos ~ . , data2010 %>% select(-cargo), na.action = na.omit)
 
   summary(voto.model2006)
   summary(voto.model2010)
@@ -72,9 +72,9 @@ Tentando rodar o modelo, pode-se observar que utilizar todas as variáveis não 
   
   2) Modelo não roda com variáveis que possuem apenas um nível - as variáveis cargo e ano, por serem de apenas um nível, não puderam ser inseridas no modelo para explicar a variação da quantidade de votos, pois são variável que não possuem variância alguma, visto que seus valores são contantes.
   
-  3) R² e R ajustado - valores muito diferentes indicando que a escolha das variáveis do modelo não foram boas.
+  3) R² e R ajustado - valores (R² = 1 e R ajusatdo = NaN) muito diferentes indicando que a escolha das variáveis do modelo não foram boas e não servem para explicar os votos.
   
-Questão 2) Compare as regressões construídas para 2006 e 2010. Quais as diferenças/semelhanças percebidas?
+QUESTÃO 2) Compare as regressões construídas para 2006 e 2010. Quais as diferenças/semelhanças percebidas?
 
   Construindo o modelo, o total de despesa e o total de receita indicam o nível de gasto de campanha de cada candidato são variáveis que parecem serem boas para explicar a variação de votos, visto que,      historicamente, campanhas mais caras redundam em campanhas vencedoras. Vamos observar os modelos, para 2006 e 2010.
   
@@ -132,12 +132,65 @@ Questão 2) Compare as regressões construídas para 2006 e 2010. Quais as difer
 
 ```
 
-Questão 3) Todas as variáveis são úteis para os modelos de regressão? Há variáveis redudantes?
+QUESTÃO 3) Todas as variáveis são úteis para os modelos de regressão? Há variáveis redudantes?
 
 Nem todas as variáveis são úteis para os modelos de regressão. Existem variáveis de apenas um nível, ou seja, variáveis que não apresentam variações no seu conteúdo. Como exemplo dessas temos o ano e cargo. Há também variáveis que existem em função de outras, onde também podemos chamá-las de redundantes. Como exemplo dessas, temos a média das receitas e média das despesas, que existem por conta das variáveis total de receitas e total de despesas, respectivamente.
 
-Questão 4) No caso de haver variáveis pouco explicativas e/ou redudantes, construa um novo modelo sem essas variáveis e o compare ao modelo com todas as variáveis (e.g. em termos de R2 e RSE). Faça isso para 2006 e 2010 separadamente. 
 
+
+QUESTÃO 4) No caso de haver variáveis pouco explicativas e/ou redudantes, construa um novo modelo sem essas variáveis e o compare ao modelo com todas as variáveis (e.g. em termos de R2 e RSE). Faça isso para 2006 e 2010 separadamente. 
+
+  Escolhendo variáveis que são explicativas, tomamos o total de despesa e a quantidade de despesa, pelo fato de que, quanto mais se gasta em uma campanha política no Brasil, mais chances se tem de ser eleito. Assim, temos o seguinte modelo:
+
+```{r}
+
+  voto.model2006 <- lm(formula = votos ~ data2006$total_despesa + data2006$quantidade_despesas, data2006 %>% select(-cargo), na.action = na.omit)
+  summary(voto.model2006)
+
+```
+
+  Observando os valores de R² e R ajustado (0.4429 e 0.4426, respectivamente), vemos que os valores são praticamente idênticos, mostrando que, de fato, as variáveis escolhidas pro modelo explicam bem os votos.
+  Podemos ver o mesmo modelo, com as mesmas variáveis, para 2010:
+  
+```{r}
+
+  voto.model2010 <- lm(formula = votos ~ data2010$total_despesa + data2010$quantidade_despesas, data2010 %>% select(-cargo), na.action = na.omit)
+  summary(voto.model2010)
+
+```
+
+  Para 2010, observamos os valores de R² e R ajustado (0.4075 e 0.4072, respectivamente), valores quase idêticos, e, assim como para 2006, vemos que as variáveis escolhidas pro modelo explicam bem os votos.
+  Fazendo agora o modelo com todas as variáveis, temos:
+  
+```{r}
+
+  voto.model2006 <- lm(formula = votos ~ . , data2006 %>% select(-cargo), na.action = na.omit)
+  voto.model2010 <- lm(formula = votos ~ . , data2010 %>% select(-cargo), na.action = na.omit)
+
+  summary(voto.model2006)
+  summary(voto.model2010)
+  
+      ggplot(voto.model2006, aes(x = predict(voto.model2006), y = residuals(voto.model2006))) + geom_point()
+
+```
+
+  Vemos que, para os dois modelos, os valores de R² e R ajustado (R² = 1 e R ajusatdo = NaN) sao muito diferentes um do outro. 
+  Pelo plot dos resíduos do modelo, vemos que todos os resíduos simplesmente estão posicionados no 0, não possuem variação, mostrando que o modelo é não apresenta consistência e coerência para explicar os votos.
+  
+QUESTÃO 5) Construa agora uma regressão considerando os anos 2006 e 2010 em conjunto. Que diferenças/semelhanças você percebe em relação aos modelos individuais por ano? Veja a questão 2 para sugestões que você usar para comparação.
+
+  Escolhendo as variáveis do modelo dos dados de 2006 e 2010 em conjunto, tomamos as mesmas utilizadas na questão 2, como aquelas que melhor explicam os votos. As variáveis foram o total das despesas e o total das receitas.
+
+```{r}
+
+eleicoes_data <- lm(formula = votos ~ eleicoes_data$total_despesa + eleicoes_data$total_receita, eleicoes_data %>% select(-cargo), na.action = na.omit)
+    summary(eleicoes_data)
+    
+```
+
+  De semelhança, os modelos possuem os valores R² e R ajustado bem semelhantes, tanto no modelo de 2006 quanto no modelo de 2010 e nos dois em conjunto, indicando que os modelos explicam bem os votos. Como diferença podemos enxergar os valores de RSE. Os resíduos para os modelos dos dados de 2006 e 2010 são maiores que os do modelo de 2006 e 2010 em conjunto.
+
+  
 
 
 
