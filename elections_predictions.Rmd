@@ -1,5 +1,7 @@
 ---
-title: "elections_predictions"
+title: "Usando Regressão Linear para Explicar a votação de Deputados"
+author: "José Ivan Silva da Cruz Júnior"
+date: "10 de outubro de 2018"
 output: html_document
 
 ---
@@ -57,12 +59,12 @@ Para responder essa questão, transformaremos as variáveis categóricas (não n
   data2010$ocupacao <- as.factor(data2010$ocupacao)
   
   
-  voto.model2006 <- lm(formula = votos ~ . , data2006 %>% select(-cargo), na.action = na.omit)
+  #voto.model2006 <- lm(formula = votos ~ . , data2006 %>% select(-cargo), na.action = na.omit)
   
-  voto.model2010 <- lm(formula = votos ~ . , data2010 %>% select(-cargo), na.action = na.omit)
+  #voto.model2010 <- lm(formula = votos ~ . , data2010 %>% select(-cargo), na.action = na.omit)
 
-  summary(voto.model2006)
-  summary(voto.model2010)
+  #summary(voto.model2006)
+  #summary(voto.model2010)
 ```
 
 Tentando rodar o modelo, pode-se observar que utilizar todas as variáveis não é plausível por, pelo menos, 3 motivos:
@@ -162,11 +164,11 @@ QUESTÃO 4) No caso de haver variáveis pouco explicativas e/ou redudantes, cons
   
 ```{r}
 
-  voto.model2006 <- lm(formula = votos ~ . , data2006 %>% select(-cargo), na.action = na.omit)
-  voto.model2010 <- lm(formula = votos ~ . , data2010 %>% select(-cargo), na.action = na.omit)
+  #voto.model2006 <- lm(formula = votos ~ . , data2006 %>% select(-cargo), na.action = na.omit)
+  #voto.model2010 <- lm(formula = votos ~ . , data2010 %>% select(-cargo), na.action = na.omit)
 
-  summary(voto.model2006)
-  summary(voto.model2010)
+  #summary(voto.model2006)
+  #summary(voto.model2010)
   
       ggplot(voto.model2006, aes(x = predict(voto.model2006), y = residuals(voto.model2006))) + geom_point()
 
