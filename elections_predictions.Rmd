@@ -82,7 +82,6 @@ QUESTÃO 2) Compare as regressões construídas para 2006 e 2010. Quais as difer
   Observando primeiro o modelo para 2006:
   
 ```{r}
-
     voto.model2006 <- lm(formula = votos ~ data2006$total_despesa + data2006$total_receita, data2006 %>% select(-cargo), na.action = na.omit)
     summary(voto.model2006)
     

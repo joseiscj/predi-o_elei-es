@@ -1,0 +1,124 @@
+---
+title: "Predição de Votação de Deputados"
+author: "José Ivan Silva da Cruz Júnior"
+date: "7 de novembro de 2018"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(caret)
+```
+
+Inicialmente, precisamos fazer um limpeza nos dados e sem seguida tratá-los para podermos utilizá-los nos modelos que queremos. 
+
+```{r}
+dadosBrutos <- read.csv("train.csv")
+dadosLimpos <- dadosBrutos %>% 
+  mutate(comites = recursos_de_outros_candidatos.comites) %>% 
+  select(-sequencial_candidato, -uf, -partido, - estado_civil, -ano, -recursos_de_outros_candidatos.comites)
+
+test <- read.csv("test.csv") %>% 
+  mutate(comites = recursos_de_outros_candidatos.comites)
+
+```
+
+Questão 1) Usando todas as variáveis disponíveis, tune (usando validação cruzada): (i) um modelo de regressão Ridge, (ii) um modelo de regressão Lasso e (iii) um modelo KNN. Para os modelos de regressão linear, o parâmetro a ser tunado é o lambda (penalização dos coeficientes) e o KNN o número de vizinhos. 
+
+Inicialmente, para o modelo Ridge , utilizo a função "train()" do pacote caret para efetuar o treino do modelo com o parâmetro "lambdas".
+
+```{r}
+lambdas <- expand.grid(lambda = seq(10^-2, 10^-9, length=20))
+
+validacao <- trainControl(method = "cv", number = 10)
+
+voto.modelRidge <- train(votos ~ media_despesa + total_despesa + quantidade_fornecedores + quantidade_despesas + recursos_de_partido_politico + recursos_proprios + recursos_de_pessoas_juridicas + recursos_de_pessoas_fisicas + media_receita + total_receita + quantidade_doadores + quantidade_doacoes, data = dadosLimpos, method = "ridge", tuneGrid = lambdas, preProc = c("center", "scale"), trControl = validacao)
+
+plot(voto.modelRidge)
+
+voto.modelRidge
+
+```
+
+Para o modelo lasso, mudarei farei a mesma coisa que para o modelo Ridge, mudando apenas o método e o range do lambda.
+
+```{r}
+lambdas <- expand.grid(fraction = seq(0.01, 10^-8, length=20))
+
+voto.modelLasso <- train(votos ~ media_despesa + total_despesa + quantidade_fornecedores + quantidade_despesas + recursos_de_partido_politico + recursos_proprios + recursos_de_pessoas_juridicas + recursos_de_pessoas_fisicas + media_receita + total_receita + quantidade_doadores + quantidade_doacoes, data = dadosLimpos, method = "lasso", tuneGrid = lambdas, preProc = c("center", "scale"), trControl = validacao)
+
+plot(voto.modelLasso)
+
+voto.modelLasso
+```
+
+Para o modelo KNN, v será o parâmetro que indicará a quantidade de vizinhos
+
+```{r}
+v <- expand.grid(k = seq(20, 100, length=81))
+
+voto.modelKNN <- train(votos ~ media_despesa + total_despesa + quantidade_fornecedores + quantidade_despesas + recursos_de_partido_politico + recursos_proprios + recursos_de_pessoas_juridicas + recursos_de_pessoas_fisicas + media_receita + total_receita + quantidade_doadores + quantidade_doacoes, data = dadosLimpos, method = "knn", tuneGrid = v, preProc = c("center", "scale"), trControl = validacao)
+
+plot(voto.modelKNN)
+
+voto.modelKNN
+```
+
+Questão 2) Compare os três modelos em termos do erro RMSE de validação cruzada.
+
+```{r}
+summary(resamples(list(RIDGE= voto.modelRidge, LASSO = voto.modelLasso, KNN = voto.modelKNN)))
+```
+
+Após realizar a mesma validação cruzada para os três modelos, observando o erro RMSE de cada um vemos que pelo modelo KNN obtemos o menor valor, seguido do modelo ridge e por último, o lasso. 
+
+Questão 3) Quais as variáveis mais importantes segundo o modelo de regressão Ridge e Lasso?  Variáveis foram descartadas pelo Lasso? Quais?
+
+```{r}
+ridgeImportancia <- ggplot(varImp(voto.modelRidge))
+lassoImportancia <- ggplot(varImp(voto.modelLasso))
+#grid.arrange(ridgeImportancia, lassoImportancia, nrow = 1)
+
+```
+
+Para os dois modelos, a variável "total_despesa" revela grande importância. Isto parece algo bem lógico, já que, em uma campanha eleitoral, quanto mais se gastar, mais votos se tende obter. O modelo lasso também eliminou as variáveis que podemos considerar como desnecessárias. 
+Podemos obter as variáveis utilizadas como preditoras pelo seguinte comando:
+
+```{r}
+pre <- predictors(voto.modelLasso)
+pre
+```
+
+O restante das variáveis foram todas descartadas.
+
+Questão 4) Re-treine o melhor modelo (usando os melhores valores de parâmetros encontrados em todos os dados, sem usar validação cruzada).
+
+Para poder retreinar o modelo, estarei removendo as variávies que foram apontadas na questão acima. Usarei o preditor feito na útima questão.
+
+```{r}
+dadosRetreinados <- dadosLimpos %>% select(pre, votos)
+```
+
+Como o modelo KNN foi aquele que apresentou o menor valor de RMSE retreinaremos o mesmo.
+
+```{r}
+voto.modelKNNRetreinado <- train(votos ~ ., data = dadosRetreinados, method = "knn",trControl = validacao,
+                     preProcess = c("center","scale"), tuneGrid = v)
+
+plot(voto.modelKNNRetreinado)
+
+voto.modelKNNRetreinado
+```
+
+Questão 5) Use esse último modelo treinado para prever os dados de teste disponíveis no challenge que criamos na plataforma Kaggle.
+
+```{r}
+prediction <- predict(voto.modelKNNRetreinado, test)
+return <- data.frame(ID=test$sequencial_candidato, votos = prediction)
+return$ID <- as.character(return$ID)
+return
+
+
+
+```
+
